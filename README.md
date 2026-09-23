@@ -2,6 +2,11 @@
 
 A production-grade, high-concurrency Competition Details system built for the **Feedants Full-Stack Development Internship Technical Assignment**.
 
+### 🚀 Live Deployments & Repository
+- 🌐 **Live Web Application (Vercel)**: [https://feedants-six.vercel.app](https://feedants-six.vercel.app)
+- ⚙️ **Live Backend API (Render)**: [https://feedants-backend-gmov.onrender.com/api/health](https://feedants-backend-gmov.onrender.com/api/health)
+- 📦 **GitHub Repository**: [https://github.com/YashSharma2129/feedants](https://github.com/YashSharma2129/feedants)
+
 This repository contains both the **React Native (Expo Router + TypeScript)** mobile frontend and the **Node.js (Express + TypeScript + MongoDB Atlas)** backend service.
 
 ---
