@@ -2,10 +2,15 @@ import mongoose from 'mongoose';
 import { env } from './env';
 
 export const connectDB = async (): Promise<string> => {
-  const uri = env.MONGO_URI;
+  let uri = env.MONGO_URI;
 
   if (!uri) {
     throw new Error('MONGO_URI is not defined in environment variables.');
+  }
+
+  // Normalize truncated query parameters (e.g. ?retryWrites -> ?retryWrites=true&w=majority)
+  if (uri.includes('?retryWrites') && !uri.includes('retryWrites=')) {
+    uri = uri.replace(/\?retryWrites.*/, '?retryWrites=true&w=majority');
   }
 
   try {
