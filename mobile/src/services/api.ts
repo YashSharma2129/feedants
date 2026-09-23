@@ -1,24 +1,29 @@
 import { Platform } from 'react-native';
 import { ApiResponse, Competition } from '../types/competition';
 
-const getApiBaseUrl = (): string => {
-  // 1. If running in Web browser, dynamically match the hostname so localhost/LAN IP always works without pending
-  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
-    const host = window.location.hostname;
-    return `http://${host}:5001/api`;
-  }
+const PRODUCTION_API_URL = 'https://feedants-backend-gmov.onrender.com/api';
 
-  // 2. Explicit environment variable if configured
+const getApiBaseUrl = (): string => {
+  // 1. Explicit environment variable if configured
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // 3. Fallback for physical devices / Android
-  if (Platform.OS === 'android') {
-    return 'http://192.168.1.40:5001/api';
+  // 2. If running in Web browser, check if hosted on public domain (like Vercel)
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
+    const host = window.location.hostname;
+    if (host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('192.168.')) {
+      return PRODUCTION_API_URL;
+    }
+    return `http://${host}:5001/api`;
   }
 
-  return 'http://localhost:5001/api';
+  // 3. Fallback for physical devices / Android
+  if (Platform.OS === 'android') {
+    return PRODUCTION_API_URL;
+  }
+
+  return PRODUCTION_API_URL;
 };
 
 const BASE_URL = getApiBaseUrl();
@@ -42,8 +47,12 @@ class ApiClient {
     // Dynamic resolve to handle dynamic window host if on web
     const resolvedBaseUrl =
       Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname
-        ? `http://${window.location.hostname}:5001/api`
-        : this.baseUrl;
+        ? (window.location.hostname === 'localhost' ||
+           window.location.hostname === '127.0.0.1' ||
+           window.location.hostname.startsWith('192.168.')
+            ? `http://${window.location.hostname}:5001/api`
+            : PRODUCTION_API_URL)
+        : (process.env.EXPO_PUBLIC_API_URL || this.baseUrl || PRODUCTION_API_URL);
 
     const url = `${resolvedBaseUrl}${endpoint}`;
     const headers: Record<string, string> = {
